@@ -1,0 +1,6 @@
+/*
+ * Game Logic
+ */
+GameLogic = {
+	
+};
