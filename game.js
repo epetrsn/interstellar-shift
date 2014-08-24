@@ -4,6 +4,9 @@ var Game = {
     gamecontainer: null,
     runtime: 0,
     dx: {w: 495, h: 600},
+    setBackgroundColor: function (color) {
+        this.stage.canvas.parentElement.style.background = color;
+    },
     preloadAssets: function () {
         console.log("Preload Game Assets");
         
@@ -31,11 +34,15 @@ var Game = {
         createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
         createjs.Touch.enable(Game.stage, true, false);
         
-        Game.ball = new createjs.Shape();
-        Game.ball.graphics.beginFill("red").drawCircle(0, 0, 50);
-        Game.ball.x = Game.ball.y = 100;
+        Game.gamecontainer = new gdc.gameContainer(Game.stage.canvas.parentElement.width, Game.stage.canvas.parentElement.height);
+        Game.stage.addChild(Game.gamecontainer);
         
-        Game.stage.addChild(Game.ball);
+        Game.testHexagon = new createjs.Shape();
+        Game.testHexagon.x = Game.testHexagon.y = 100;
+        var hex = new hexagonMath.Hexagon(0, 0, 50, 30);
+        hex.draw(Game.testHexagon, "#330000", "red", 2);
+        
+        Game.gamecontainer.gamefield.addChild(Game.testHexagon);
         
         Game.stage.update();
         
@@ -43,10 +50,13 @@ var Game = {
         console.log("Start Game");
         
         createjs.Ticker.on("tick", Game.tick);
+        
+        this.setBackgroundColor("black");
     },
     tick: function (event) {
         Game.runtime += event.delta;
         Game.stage.update();
+        Game.testHexagon.y += 1;
     },
-    ball: undefined
+    testHexagon: undefined
 }

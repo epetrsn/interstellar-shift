@@ -39,7 +39,7 @@ hexagonMath.Hexagon.prototype.calcCornerXY = function (Corner) {
     }
 };
 
-hexagonMath.Hexagon.prototype.draw = function (createjsShape, Color, Fill) {
+hexagonMath.Hexagon.prototype.draw = function (createjsShape, FillColor, StrokeColor, StrokeWidth) {
     var cornerPoint, corner;
     
     corner = 0;
@@ -47,11 +47,16 @@ hexagonMath.Hexagon.prototype.draw = function (createjsShape, Color, Fill) {
     cornerPoint = this.calcCornerXY(corner);
     createjsShape.graphics.moveTo(cornerPoint.x, cornerPoint.y);
     
-    if (typeof Color !== "undefined") {
-        createjsShape.graphics.beginStroke(Color);
+    if (typeof StrokeWidth !== "undefined") {
+        createjsShape.graphics.setStrokeStyle(StrokeWidth, 1);
+    } else {
+        createjsShape.graphics.setStrokeStyle(1, 1);
     }
-    if (typeof Fill !== "undefined") {
-        createjsShape.graphics.beginFill(Color);
+    if (typeof StrokeColor !== "undefined") {
+        createjsShape.graphics.beginStroke(StrokeColor);
+    }
+    if (typeof FillColor !== "undefined") {
+        createjsShape.graphics.beginFill(FillColor);
     }
     
     while (corner < 5) {

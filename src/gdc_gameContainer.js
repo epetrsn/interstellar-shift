@@ -3,32 +3,30 @@ if (typeof gdc === "undefined") {
 }
 
 (function (scope) {
-    function gameField(width, height) {
+    function gameContainer(width, height) {
         this.initialize(width, height);
     }
     (function (obj) {
-        var p = gameField.prototype = new createjs.Container();
+        var p = gameContainer.prototype = new createjs.Container();
         
         p.Container_initialize = p.initialize;
         
         p.initialize = function (width, height) {
             this.Container_initialize(); //Initialize the container.
             
-            this.name = "gdc_gameField"; //Set default name
+            this.name = "gdc_gameContainer"; //Set default name
             
             this.on("tick", this.onTick);
             
-            this.gfWidth = width;
-            this.gfHeight = height;
+            this.gamefield = new gdc.gameField(width, height);
+            this.addChild(this.gamefield);
         };
         
-        p.gfWidth = 0;
-        p.gfHeight = 0;
-        
+        p.gameField = undefined;
         p.onTick = function (event) {
             
         };
         
     }(scope));
-    scope.gameField = gameField;
+    scope.gameContainer = gameContainer;
 }(gdc));
