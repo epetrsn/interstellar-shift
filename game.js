@@ -3,6 +3,7 @@ var Game = {
     stage: null,
     gamecontainer: null,
     runtime: 0,
+    dx: {w: 495, h: 600},
     preloadAssets: function () {
         console.log("Preload Game Assets");
         
