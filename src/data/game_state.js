@@ -3,11 +3,14 @@
  */
 
 function GameState() {
-		this.map = new Map();
-    this.players = [];
-    this.turn = 0;
-    this.phase = 0;
-    this.phaseNames = ["Move", "Attack", "Spawn"];
+	// Game Data
+	this.map = new Map();
+  this.players = [];
+  // Game State
+  this.turn = 0;
+  this.phase = 0;
+  // Moved to GameConst
+  // this.phaseNames = ["Move", "Attack", "Spawn"];
     
 }
 
@@ -16,5 +19,5 @@ GameState.prototype.getCurrentPlayer = function () {
 };
 
 GameState.prototype.getCurrentPhaseName = function () {
-    return this.phaseNames[this.phase];
+    return GameConst.TURN_PHASES[this.phase];
 };

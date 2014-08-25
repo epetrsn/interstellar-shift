@@ -106,19 +106,20 @@ var Game = {
     },
     start: function () {
         "use strict";
-        
-        // Create New GameState
-        var gameState = new GameState();
-        GameLogic.initGameState(gameState, {numPlayers: 2});
 
         gdc.gamePieceData.setupGamePieceImages()
         
         Game.gamecontainer = new gdc.gameContainer(Game.stage.canvas.width, Game.stage.canvas.height);
         
         Game.stage.addChild(Game.gamecontainer);
-        
+
+        // Create New GameState
+        var gameState = new GameState();
+        GameLogic.initGameState(gameState, {numPlayers: 2});
+
 //        Game.sound.playSong("gameSong")
-        
+        // No need for test hexagon?
+        /*
         Game.testHexagon = new gdc.gamePiece("blue");
         Game.testHexagon.x = Game.testHexagon.y = 100;
         Game.testHexagon.changeTeam("purple");
@@ -137,6 +138,7 @@ var Game = {
             });
             Game.stage.update();
         }, undefined, this);
+        */
         console.log("Start Game");
         
         createjs.Ticker.on("tick", Game.tick);

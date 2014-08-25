@@ -16,7 +16,7 @@ function Player(color, strategy) {
 Player.prototype.countProducerUnits = function () {
     var count;
     
-    //Count up producer units that exist in this.livingUnits
+    // Count up producer units that exist in this.livingUnits
     
     this.producerUnits = count;
     return count;

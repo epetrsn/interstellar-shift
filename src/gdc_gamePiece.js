@@ -3,8 +3,8 @@ if (typeof gdc === "undefined") {
 }
 
 (function (scope) {
-    function gamePiece(Team, HitAreaRadius) {
-        this.initialize(Team, HitAreaRadius);
+    function gamePiece(unitData, HitAreaRadius) {
+        this.initialize(unitData, HitAreaRadius);
     }
     (function (obj) {
         var p = gamePiece.prototype = new createjs.Container();
@@ -16,18 +16,21 @@ if (typeof gdc === "undefined") {
         p.body_glow = undefined;
         p.change_glow = undefined;
         
-        p.initialize = function (Team, HitAreaRadius) {
+        p.initialize = function (unit, HitAreaRadius) {
             this.Container_initialize();
             
             this.name = "gamePiece";
             this.setHitAreaCircle(HitAreaRadius);
             
-            if (typeof Team !== "undefined") {
-                this.team = Team;
+            if (unit) {
+                this.team = unit.owner.color;
+                this.unit = unit;
             } else {
                 this.team = "red";
+                this.mode = 0;
+                this.unit = null;
             }
-            
+            this.on('tick', this.onTick);
             this.setupImages();
         };
         
@@ -134,7 +137,20 @@ if (typeof gdc === "undefined") {
         };
         
         p.onTick = function (event) {
-            
+            var unit = this.unit;
+            if (unit.propertyChanged) {
+                if (this.team !== unit.owner.color) {
+                    changeTeam(unit.owner.color);
+                }
+                this.changeMode(unit.mode.frame);
+                unit.propertyChanged = false;
+                if (!this.isDragging) {
+                    var node = (unit.targetLocation || unit.location);
+                    var coords = MapUtil.axialToCartesian(node.q, node.r, GameConst.HEXAGON_SIZE);
+                    this.x = coords.x;
+                    this.y = coords.y;
+                }
+            }
         };
         
     }(scope));

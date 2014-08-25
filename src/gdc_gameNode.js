@@ -15,6 +15,7 @@ if (typeof gdc === "undefined") {
             this.name = "gameNode";
             this.radius = HitAreaRadius;
             this.setHitAreaCircle(HitAreaRadius);
+            this.initialColor = color;
             this.drawDebugInfo(color);
 
             this.on('click', this.onClick);
@@ -29,7 +30,7 @@ if (typeof gdc === "undefined") {
 
         p.drawDebugInfo = function (color, cost) {
             var circle = new createjs.Shape();
-            circle.graphics.beginFill(color || "red").drawCircle(0, 0, this.radius);
+            circle.graphics.beginFill(color || this.initialColor).drawCircle(0, 0, this.radius);
             this.addChild(circle);
             if (cost) {
                 var text = new createjs.Text(cost.toString(), "12px Arial", "#fff"); text.x = 0; text.y = 0; text.textBaseline = "alphabetic"; text.textAlign = "center";
@@ -52,15 +53,11 @@ if (typeof gdc === "undefined") {
             if (data.version !== DebugState.costVersion || !data.cost) {
                 this.version = DebugState.costVersion;
                 this.removeAllChildren();
-                var color = '#0000ff';
-                this.drawDebugInfo(color);
+                this.drawDebugInfo();
             } else if (data.version !== this.version) {
                 this.version = data.version;
                 this.removeAllChildren();
-                var color = '#' + ((data.cost * 20) + 16).toString(16) + ((data.cost * 20) + 16).toString(16) + 'ff';
-                color = 'gray';
-                console.debug('Color',color);
-                this.drawDebugInfo(color, data.cost);
+                this.drawDebugInfo('blue', data.cost);
             } 
         };
         

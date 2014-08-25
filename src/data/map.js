@@ -109,11 +109,13 @@ function Map() {
 	this.tileData = {};
 	this.tiles = [];
 	this.tileMap = {};
+	this.size = 0;
 };
 
 Map.prototype.initialize = function (size) {
 	var i, j, q, r, l, m,
 	    dir, tile;
+	this.size = size;
 	for (q = -size; q <= size; q++) {
 		for (r = -size; r <= size; r++) {
 			if (Math.abs(0 - r - q) > size) {
@@ -168,7 +170,10 @@ Map.prototype.initialize = function (size) {
 };
 
 Map.prototype.getStartingNode = function (index, numPlayers) {
-	
+	var spacing = Math.floor(MAP_DIRS.length / numPlayers);
+	var dir = MAP_DIRS[index * spacing];
+	var key = MapUtil.generateKey(this.size * dir.q, this.size * dir.r);
+	return this.tileMap[key];
 };
 
 /*
