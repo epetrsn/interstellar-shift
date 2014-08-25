@@ -34,6 +34,19 @@ if (typeof gdc === "undefined") {
         p.setupImages = function () {
             var b;
             
+            if (typeof this.change_glow === "undefined") {
+                b = {x: gdc.gamePieceData.gp_Glow_Overlay.width, y: gdc.gamePieceData.gp_Glow_Overlay.height};
+                
+                this.change_glow = new createjs.Bitmap(gdc.gamePieceData.gp_Glow_Overlay);
+                this.change_glow.regX = b.x / 2;
+                this.change_glow.regY = b.y / 2;
+                this.change_glow.alpha = 0;
+                this.addChild(this.change_glow);
+            } else {
+                this.removeChild(this.change_glow);
+                this.addChild(this.change_glow);
+            }
+            
             b = {x: gdc.gamePieceData.gp_width, y: gdc.gamePieceData.gp_height};
             
             if (typeof this.body !== undefined) {
@@ -54,19 +67,6 @@ if (typeof gdc === "undefined") {
             } else {
                 this.removeChild(this.body_glow);
                 this.addChild(this.body_glow);
-            }
-            
-            if (typeof this.change_glow === "undefined") {
-                b = {x: gdc.gamePieceData.gp_Glow_Overlay.width, y: gdc.gamePieceData.gp_Glow_Overlay.height};
-                
-                this.change_glow = new createjs.Bitmap(gdc.gamePieceData.gp_Glow_Overlay);
-                this.change_glow.regX = b.x / 2;
-                this.change_glow.regY = b.y / 2;
-                this.change_glow.alpha = 0;
-                this.addChild(this.change_glow);
-            } else {
-                this.removeChild(this.change_glow);
-                this.addChild(this.change_glow);
             }
         };
         
@@ -104,16 +104,30 @@ if (typeof gdc === "undefined") {
                 } else {
                     var step2;
                     
-                    step2 = function (Dur) {
+                    step3 = function (Dur) {
                         this.body.gotoAndStop(this.mode);
                         this.body_glow.gotoAndStop(this.mode);
-                        createjs.Tween.get(this.body_glow).to({alpha: 0}, Dur / 2);
+                        
+                        createjs.Tween.removeTweens(this.body_glow);
+                        
+                        createjs.Tween.get(this.body_glow).to({alpha: 1}, Dur * 0.25).call(function(Dur) {
+                            createjs.Tween.get(this.body).to({alpha: 1}, Dur * 0.25);
+                        }, [Dur], this);
+                        createjs.Tween.get(this.body_glow).wait(Dur * 0.25).to({alpha: 0}, Dur * 0.25);
+                        
                         createjs.Tween.removeTweens(this.change_glow);
                         createjs.Tween.get(this.change_glow).to({alpha: 0}, Dur / 2);
+                        
+                        createjs.Tween.removeTweens(this.body);
                     };
                     
-                    createjs.Tween.get(this.body_glow).to({alpha: 1}, Duration / 2).call(step2, [Duration], this);
-                    createjs.Tween.get(this.change_glow).to({alpha: 0.5}, Duration / 2);
+                    step2 = function (Dur) {
+                        createjs.Tween.get(this.body_glow).to({alpha: 0}, Dur * 0.125);
+                    };
+                    
+                    createjs.Tween.get(this.body_glow).to({alpha: 1}, Duration * 0.375).call(step2, [Duration], this);
+                    createjs.Tween.get(this.change_glow).to({alpha: 1}, Duration / 2).call(step3, [Duration], this);
+                    createjs.Tween.get(this.body).to({alpha: 0}, Duration / 2);
                     
                 }
             }

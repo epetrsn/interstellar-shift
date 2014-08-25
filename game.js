@@ -143,7 +143,7 @@ var Game = {
         "use strict";
         Game.runtime += event.delta;
         Game.stage.update();
-        Game.testHexagon.y += 1;
+//        Game.testHexagon.y += 1;
     },
     testHexagon: undefined
 };
