@@ -13,10 +13,13 @@ if (typeof gdc === "undefined") {
         
         p.initialize = function (width, height) {
             this.Container_initialize(); //Initialize the container.
-            
+            this.mouseChildren = false;
             this.name = "gdc_gameField"; //Set default name
             
             this.on("tick", this.onTick);
+            this.on("mousedown", this.onMouseDown);
+            this.on("pressmove", this.onDrag);
+            // this.on("pressup", this.onDrag);
             
             this.gfWidth = width;
             this.gfHeight = height;
@@ -27,6 +30,18 @@ if (typeof gdc === "undefined") {
         
         p.onTick = function (event) {
             
+        };
+
+        p.onMouseDown = function (e) {
+            this._dragOffsetX = e.stageX;
+            this._dragOffsetY = e.stageY;
+        };
+
+        p.onDrag = function (e) {
+            this.x += e.stageX - this._dragOffsetX;
+            this.y += e.stageY - this._dragOffsetY;
+            this._dragOffsetX = e.stageX;
+            this._dragOffsetY = e.stageY;
         };
         
     }(scope));
