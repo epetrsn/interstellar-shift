@@ -31,6 +31,12 @@ MapUtil = {
 		    dz = Math.abs(t2.z() - t1.z());
 		return (dx + dy + dz) / 2;
 	},
+	radialManhattan: function (q1, r1, q2, r2) {
+		var dx = Math.abs(q2 - q1),
+		    dy = Math.abs((-q2-r2) - (-q1-r1)),
+		    dz = Math.abs(r2 - r1);
+		return (dx + dy + dz) / 2;
+	},
 	// t1 to t2 direction
 	getDirection: function (t1, t2) {
 		var i, l;
@@ -115,8 +121,9 @@ Map.prototype.initialize = function (size) {
 			}
 			// TODO: Create some planets!
 			var dirs = MAP_DIRS;
-			if ((q === 0 || r === 0 || r + q === 0) &&
-					(Math.abs(q) + Math.abs(r) + Math.abs(q + r)) === size*2) {
+
+			var distanceFromCenter = MapUtil.radialManhattan(q,r,0,0);
+			if ((q === 0 || r === 0 || -q-r === 0) && (distanceFromCenter === size || distanceFromCenter === 0)) {
 				tile = new Planet(q, r);
 				console.log('Creating new Planet',tile.key);
 			} else {
@@ -180,6 +187,7 @@ Tile.prototype.getNode = function (edge) {
 	return this.nodes[edge];
 };
 Tile.prototype.setNode = function (edge, node) {
+	console.debug('SET',edge, node.key);
 	return this.nodes[edge] = node;
 };
 
@@ -192,30 +200,21 @@ Tile.prototype.addNeighbor = function (tile) {
 	var dir = MapUtil.getDirection(this, tile);
 	var reverse = MapUtil.reverseDirection(dir);
 	// Check both for nodes. They will only have a node already if it's a planet node.
-	var node = tile.getNode(dir) || this.getNode(reverse);
+	var node = tile.getNode(reverse) || this.getNode(dir);
 	if (!node) {
 		throw new Error('Tile.addNeighbor::node is missing at Tile '+ tile.key+'['+dir+']');
-		// node = new Node(0, 0);
 	}
 	this.setNode(dir, node);
 	tile.setNode(reverse, node);
-	// Link adjacent nodes
-	/*
-	var nodes = [
-		this.getNode((dir + 1) % 6),
-		this.getNode((dir + (3 - 1)) % 6),
-		node,
-		this.getNode((dir + (6 - 1)) % 6),
-		this.getNode((dir + 3 + 1) % 6)
-	];
-*/
 };
 
 Tile.prototype.addMissingNodes = function () {
 	var i, l, dir, dirs = MAP_DIRS;
 	for (i = 0, l = dirs.length; i < l; i++) {
+		console.debug('addMissingNodes ::',i,'of',l);
 		if (!this.getNode(i)) {
 			dir = dirs[i];
+			console.debug('Need Tile for', dir);
 			this.setNode(i, new Node(this.q + (0.5*dir.q), this.r + (0.5*dir.r)));
 		}
 	}
@@ -237,7 +236,6 @@ Tile.prototype.linkTileNodes= function (tiles) {
 	console.log('Linking',tiles.length,'neighbors to tile',this.key);
 	var i, l, tile;
 	this.linkNodes();
-
 	// TODO: if corners aren't planets we'll need this to complete the linking
 	// for (i = 0, l = tiles.length; i < l; i++) {
 	// 	tile = tiles[i];
@@ -269,7 +267,9 @@ Planet.prototype.setNode = function (edge, node) {
 }
 
 Planet.prototype.addMissingNodes = function () {
+	console.debug('addMissingNodes :: PLANET');
 	if (!this.getNode(0)) {
+		console.debug('Need Tile for PLANET');
 		this.setNode(0, new Node(this.q, this.r));
 	}
 };
@@ -281,12 +281,13 @@ Planet.prototype.linkNodes = function () {
  * Node
  */
 function Node(q, r) {
-	console.debug('node', q, r, '#'+ (++s_nodeCount));
+	++s_nodeCount;
 	isPlanet = false;
 	this.q = q;
 	this.r = r;
 	this.generateKey();
 	this.nodes = [];
+	this.data = {};
 };
 
 Node.prototype.generateKey = function () {
@@ -300,6 +301,19 @@ Node.prototype.linkTo = function (node) {
 		this.nodes.push(node);
 		// Add edge?
 	}
+};
+
+Node.prototype.toString = function () {
+	var coords = MapUtil.axialToCube(this.q, this.r);
+	var result = 'Node::' + (this.isPlanet ? 'Planet ' : 'Space ') + this.key +'\n * cubic: ' + coords.x + ', ' + coords.y;
+	for (var key in this.data) {
+		if (!this.data.hasOwnProperty(key)) {
+			console.debug('Node has',key);
+			continue;
+		}
+		result += '\n * ' + key + ': '+ this.data[key];
+	}
+	return result;
 };
 
 

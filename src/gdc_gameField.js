@@ -13,7 +13,7 @@ if (typeof gdc === "undefined") {
         
         p.initialize = function (width, height) {
             this.Container_initialize(); //Initialize the container.
-            this.mouseChildren = false;
+            // this.mouseChildren = false;
             this.name = "gdc_gameField"; //Set default name
             
             this.on("tick", this.onTick);
