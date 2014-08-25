@@ -4,7 +4,8 @@
  * Contains state data for a player. Players need a strategy to determine code to run otaht player's turn
  */
 
-function Player(strategy) {
+function Player(color, strategy) {
+    this.color = color;
 	this.strategy = strategy;
     this.livingUnits = [];
     this.isTurn = false;

@@ -107,6 +107,10 @@ var Game = {
     start: function () {
         "use strict";
         
+        // Create New GameState
+        var gameState = new GameState();
+        GameLogic.initGameState(gameState, {numPlayers: 2});
+
         gdc.gamePieceData.setupGamePieceImages()
         
         Game.gamecontainer = new gdc.gameContainer(Game.stage.canvas.width, Game.stage.canvas.height);
@@ -143,7 +147,6 @@ var Game = {
         "use strict";
         Game.runtime += event.delta;
         Game.stage.update();
-//        Game.testHexagon.y += 1;
     },
     testHexagon: undefined
 };
