@@ -1,7 +1,11 @@
 var Game = {
     queue: null,
     stage: null,
-    gamecontainer: null,
+    displayObjects: {
+        activeState: null,
+        aboveActiveState: null,
+        screenColorCover: null
+    },
     runtime: 0,
     dx: {w: 495, h: 600},
     sound: {
@@ -102,48 +106,42 @@ var Game = {
         createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
         createjs.Touch.enable(Game.stage, true, false);
         
+        Game.stage.enableMouseOver(20);
+        
         Game.preloadAssets();
+    },
+    switchActiveState: function (NewState) {
+        if (Game.displayObjects.activeState) {
+            Game.stage.removeChild(Game.displayObjects.activeState);
+        }
+        Game.displayObjects.activeState = NewState;
+        Game.stage.addChild(NewState);
+        
+        //Make sure Game.displayObjects.aboveActiveState ends up on top of everything else.
+        Game.stage.removeChild(Game.displayObjects.aboveActiveState);
+        Game.stage.addChild(Game.displayObjects.aboveActiveState);
+        
     },
     start: function () {
         "use strict";
 
+        //Setup gamepiece image data
         gdc.gamePieceData.setupGamePieceImages()
         
-        Game.gamecontainer = new gdc.gameContainer(Game.stage.canvas.width, Game.stage.canvas.height);
+        //Setup some top level display objects
+        Game.displayObjects.aboveActiveState = new createjs.Container();
+        Game.stage.addChild(Game.displayObjects.aboveActiveState);
         
-        Game.stage.addChild(Game.gamecontainer);
+        Game.displayObjects.screenColorCover = new createjs.Shape();
+        Game.displayObjects.aboveActiveState.addChild(Game.displayObjects.screenColorCover);
+        
+        //Setup the first active state
+        var ts = new gdc.titlescreen();
+        Game.switchActiveState(ts);
 
-        // Create New GameState
-        var gameState = new GameState();
-        GameLogic.initGameState(gameState, {numPlayers: 2});
-
-//        Game.sound.playSong("gameSong")
-        // No need for test hexagon?
-        /*
-        Game.testHexagon = new gdc.gamePiece("blue");
-        Game.testHexagon.x = Game.testHexagon.y = 100;
-        Game.testHexagon.changeTeam("purple");
-        Game.testHexagon.scaleX = 0.25;
-        Game.testHexagon.scaleY = 0.25;
-//        var hex = new hexagonMath.Hexagon(0, 0, 50, 30);
-//        hex.draw(Game.testHexagon, "#330000", "red", 2);
-//        
-        Game.gamecontainer.gamefield.addChild(Game.testHexagon);
-        
-        
-        createjs.Tween.get(this).wait(2000).call(function () {
-            Game.sound.playSFX("changeMode", 1);
-            createjs.Tween.get(this).wait(200).call(function () {
-                Game.testHexagon.changeMode(2, 1900);
-            });
-            Game.stage.update();
-        }, undefined, this);
-        */
         console.log("Start Game");
         
         createjs.Ticker.on("tick", Game.tick);
-        
-        this.setBackgroundColor("black");
     },
     tick: function (event) {
         "use strict";

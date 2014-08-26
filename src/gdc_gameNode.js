@@ -11,16 +11,21 @@ if (typeof gdc === "undefined") {
         p.Container_initialize = p.initialize;
         p.initialize = function (HitAreaRadius, nodeData, color) {
             this.Container_initialize();
+            
             this.nodeData = nodeData;
+            
             this.name = "gameNode";
+            
             this.radius = HitAreaRadius;
             this.setHitAreaCircle(HitAreaRadius);
+            
             this.initialColor = color;
             this.drawDebugInfo(color);
 
             this.on('click', this.onClick);
             this.on("tick", this.onTick);
         };
+        
         //WARING: VVV Does not work for hitTest() only works for mouseInteractions and getObjectsUnderPoint VVV
         p.setHitAreaCircle = function (Radius) {
             var circle = new createjs.Shape();
@@ -29,13 +34,46 @@ if (typeof gdc === "undefined") {
         };
 
         p.drawDebugInfo = function (color, cost) {
-            var circle = new createjs.Shape();
-            circle.graphics.beginFill(color || this.initialColor).drawCircle(0, 0, this.radius);
-            this.addChild(circle);
-            if (cost) {
-                var text = new createjs.Text(cost.toString(), "12px Arial", "#fff"); text.x = 0; text.y = 0; text.textBaseline = "alphabetic"; text.textAlign = "center";
+            if (typeof this.debugCircle === "undefined") {
+                this.debugCircle = new createjs.Shape();
+                this.addChild(this.debugCircle);
+            } else {
+                this.debugCircle.graphics.clear();
             }
-            this.addChild(text);
+            
+            this.debugCircle.graphics.beginFill(color || this.initialColor).drawCircle(0, 0, this.radius);
+            this.setBounds(-this.radius, -this.radius, this.radius, this.radius);
+            
+            if (cost) {
+                if (typeof this.debugText === "undefined") {
+                    this.debugText = new createjs.Text("empty", "12px " + GameConst.FONT, "#fff");
+                    this.addChild(this.debugText);
+                } else {
+                    this.debugText.visible = true;
+                    //Probably not nessisary
+                    this.debugText.font = "12px " + GameConst.FONT;
+                    this.debugText.color = "#fff";
+                }
+                
+                if (cost.toString() !== this.debugText.text) {
+                    this.debugText.text = cost.toString();
+                    this.debugText.x = 0;
+                    this.debugText.y = 0;
+                    this.debugText.textBaseline = "alphabetic";
+                    this.debugText.textAlign = "center";
+                    
+                    //Cache the text for speeeeed
+                    this.debugText.uncache();
+                    var b = this.debugText.getBounds();
+                    if (b) {
+                        this.debugText.cache(b.x, b.y, b.width, b.height, 1);
+                    }
+                }
+            } else {
+                if (typeof this.debugText !== "undefined") {
+                    this.debugText.visible = false;
+                }
+            }
         };
 
         p.onClick = function (event) {
@@ -48,15 +86,14 @@ if (typeof gdc === "undefined") {
                 console.info(node.toString());
             }
         };
+        
         p.onTick = function (event) {
             var data = this.nodeData.data;
             if (data.version !== DebugState.costVersion || !data.cost) {
                 this.version = DebugState.costVersion;
-                this.removeAllChildren();
                 this.drawDebugInfo();
             } else if (data.version !== this.version) {
                 this.version = data.version;
-                this.removeAllChildren();
                 this.drawDebugInfo('blue', data.cost);
             } 
         };

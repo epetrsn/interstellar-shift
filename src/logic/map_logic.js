@@ -1,6 +1,4 @@
-/*
- * Map Logic
- */
+//FILE CONTAINS NODE AND MAP LOGIC
 
 /*
  * Node Logic
@@ -31,4 +29,49 @@ NodeLogic = {
 			}
 		}
 	}
-}
+};
+
+/*
+ * Map Logic
+ */
+
+MapLogic = {
+    // TODO: This method should probably be in a different file
+	renderMap: function (map, gameContainer) {
+		var i, j, l, n, node, nodes, tile, tiles;
+		var dispObj, hexagonSize, radius;
+        
+        tiles = map.tiles;
+        hexagonSize = GameConst.HEXAGON_SIZE;
+        
+		console.info('addMapDisplay for',map.tiles.length,'tile(s)');
+		
+        // Duplicate node prevention
+		var observedNodes = {};
+        
+		for (i = 0, l = tiles.length; i < l; i++) {
+			tile = tiles[i];
+			nodes = tile.nodes;
+			for (j = 0, n = nodes.length; j < n; j++) {
+				node = nodes[j];
+				if (observedNodes[node.key]) {
+					continue;
+				}
+				observedNodes[node.key] = node;
+				// TODO: Add real graphics for space and planet nodes
+				radius = node.isPlanet ? hexagonSize/1.2 : hexagonSize/4;
+				dispObj = gameContainer.gamefield.addNode(radius, node, 'gray');
+				// Position in container. May need additional offsets.
+				var coords = MapUtil.axialToCartesian(node.q, node.r, hexagonSize);
+				dispObj.x = coords.x;
+				dispObj.y = coords.y;
+				//gameContainer.gamefield.addChild(dispObj);
+			}
+		}
+        
+        //Set the dimensions of the game field before adding game pieces
+        var gfb = gameContainer.gamefield.getBounds();
+        console.log("Getting dx for " + gameContainer.gamefield + ": " + gfb);
+        gameContainer.setGameFieldDX(gfb.width, gfb.height);
+	}
+};

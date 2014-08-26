@@ -20,7 +20,9 @@ if (typeof gdc === "undefined") {
             this.Container_initialize();
             
             this.name = "gamePiece";
-            this.setHitAreaCircle(HitAreaRadius);
+            //this.setHitAreaCircle(HitAreaRadius);
+            this.mouseChildren = false;
+            this.mouseEnabled = true;
             
             if (unit) {
                 this.team = unit.owner.color;
@@ -31,6 +33,11 @@ if (typeof gdc === "undefined") {
                 this.unit = null;
             }
             this.on('tick', this.onTick);
+            
+            this.on("mousedown", this.onMouseDown);
+            this.on("pressmove", this.onDrag);
+            this.on("pressup", this.onDragRelease);
+            
             this.setupImages();
         };
         
@@ -113,7 +120,7 @@ if (typeof gdc === "undefined") {
                         
                         createjs.Tween.removeTweens(this.body_glow);
                         
-                        createjs.Tween.get(this.body_glow).to({alpha: 1}, Dur * 0.25).call(function(Dur) {
+                        createjs.Tween.get(this.body_glow).to({alpha: 1}, Dur * 0.25).call(function (Dur) {
                             createjs.Tween.get(this.body).to({alpha: 1}, Dur * 0.25);
                         }, [Dur], this);
                         createjs.Tween.get(this.body_glow).wait(Dur * 0.25).to({alpha: 0}, Dur * 0.25);
@@ -151,6 +158,29 @@ if (typeof gdc === "undefined") {
                     this.y = coords.y;
                 }
             }
+        };
+        
+        p.onMouseDown = function (e) {
+            this._dragOffsetX = e.stageX;
+            this._dragOffsetY = e.stageY;
+            this.isDragging = true;
+        };
+        
+        p.onDragRelease = function (e) {
+            this.isDragging = false;
+            
+            var dropE = new createjs.Event("unitDropped");
+            this.dispatchEvent(dropE);
+            
+            this.unit.propertyChanged = true;
+            console.log("Drag released: " + !this.isDragging);
+        };
+
+        p.onDrag = function (e) {
+            this.x += e.stageX - this._dragOffsetX;
+            this.y += e.stageY - this._dragOffsetY;
+            this._dragOffsetX = e.stageX;
+            this._dragOffsetY = e.stageY;
         };
         
     }(scope));
